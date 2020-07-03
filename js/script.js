@@ -1,8 +1,8 @@
 // jshint -W097
 /* jshint -W014 */
-// global alert, confirm, console, prompt
+/* global alert, confirm, console, prompt, console */
 /* jshint esversion: 6 */
-'use strict';
+
 
 
 class Todo {
@@ -30,6 +30,8 @@ class Todo {
             };
             this.todoData.set(newTodo.key, newTodo);
             this.render();
+        } else {
+            alert('Ошибка! Невозможно добавить пустое дело!');
         }
     }
 
@@ -40,7 +42,7 @@ class Todo {
         this.addToStorage();
     }
 
-    createItem = (todo) => {
+    createItem(todo) {
         const li = document.createElement('li');
         li.classList.add('todo-item');
         li.dataset.key = todo.key;
@@ -63,21 +65,40 @@ class Todo {
         return Math.random().toString(36).substr(2, 15);
     }
 
-    delitedItem() {
-
+    delitedItem(target) {
+        const key = target.closest('li').dataset.key;
+        if (key) {
+            this.todoData.delete(key);
+            this.render();
+        }
     }
 
-    completedItem() {
-
+    completedItem(target) {
+        const key = target.closest('li').dataset.key;
+        if (key) {
+            const todo = this.todoData.get(key);
+            todo.completed = !todo.completed;
+            this.render();
+        }
     }
 
-    handler() {
+    handler(e) {
+        const target = e.target;
+        if (target.matches('button.todo-remove')) {
+            this.delitedItem(target);
+        } else if (target.matches('button.todo-complete')) {
+            this.completedItem(target);
+        }
+    }
 
+    eventListener() {
+        document.querySelector('.todo-container').addEventListener('click', this.handler.bind(this));
     }
 
     init() {
         this.form.addEventListener('submit', this.addTodo.bind(this));
         this.render();
+        this.eventListener();
     }
 }
 
